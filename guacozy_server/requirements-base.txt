@@ -10,7 +10,7 @@
 #   django-semanticui-forms    -> template form rendering
 #   django-admin-list-filter-dropdown, django-environ, pyguacamole,
 #   python-memcached           -> framework-agnostic / already compatible
-asgiref==3.4.1
+asgiref==3.5.2
 channels==3.0.5
 daphne==3.0.2
 Django==3.2.25
