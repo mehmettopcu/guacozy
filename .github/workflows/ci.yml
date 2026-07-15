@@ -34,6 +34,10 @@ jobs:
           python -m pip install --upgrade pip wheel
           pip install -r requirements-test.txt
 
+      - name: Django system check
+        working-directory: guacozy_server
+        run: python manage.py check
+
       - name: Check migrations are up to date
         working-directory: guacozy_server
         run: python manage.py makemigrations --check --dry-run

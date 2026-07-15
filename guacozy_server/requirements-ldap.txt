@@ -1,3 +1,6 @@
 -r requirements-base.txt
-django-auth-ldap==2.0.0
-python-ldap==3.2.0; sys_platform == 'linux'
+# django-auth-ldap 4.x is required for Django 3.2 (2.0.0 caps at Django 3.0).
+# Note: LDAP is not exercised by CI (no directory server), so this pin is
+# upgraded for compatibility but verified manually.
+django-auth-ldap==4.1.0
+python-ldap==3.4.3; sys_platform == 'linux'

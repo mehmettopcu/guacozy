@@ -1,12 +1,17 @@
 """
-ASGI entrypoint. Configures Django and then runs the application
-defined in the ASGI_APPLICATION setting.
+ASGI entrypoint. Configures Django and then exposes the Channels routing
+application defined in guacozy_server/routing.py.
 """
 
 import os
+
 import django
-from channels.routing import get_default_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "guacozy_server.settings")
 django.setup()
-application = get_default_application()
+
+# Imported after django.setup() so app registry / settings are ready
+# (routing.py calls get_asgi_application() at import time).
+from guacozy_server.routing import application  # noqa: E402
+
+__all__ = ["application"]
