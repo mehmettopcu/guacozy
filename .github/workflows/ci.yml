@@ -38,16 +38,9 @@ jobs:
         working-directory: guacozy_server
         run: python manage.py check
 
-      - name: Capture generated migrations (temporary)
-        run: |
-          cd guacozy_server
-          python manage.py makemigrations
-          cd ..
-          echo "===== NEW MIGRATION FILES ====="
-          for f in $(git ls-files --others --exclude-standard | grep 'migrations/.*\.py$'); do
-            echo "----- $f -----"
-            cat "$f"
-          done
+      - name: Check migrations are up to date
+        working-directory: guacozy_server
+        run: python manage.py makemigrations --check --dry-run
 
       - name: Run tests
         working-directory: guacozy_server
