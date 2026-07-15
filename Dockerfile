@@ -11,6 +11,9 @@ FROM ${BUILDFRONTENDFROM} as builder-frontend
 ARG DOCKER_TAG
 ADD frontend/package.json /frontend/
 ADD frontend/package-lock.json /frontend/
+# .npmrc (legacy-peer-deps) must be present before install so React 18 resolves
+# against the UI libs' stale react ^16 peer ranges.
+ADD frontend/.npmrc /frontend/
 WORKDIR /frontend
 RUN npm install
 ADD frontend /frontend
