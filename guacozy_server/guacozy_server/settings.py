@@ -193,6 +193,10 @@ AUTHENTICATION_BACKENDS = [
 # Custom user model
 AUTH_USER_MODEL = 'users.User'
 
+# Keep the historical AutoField primary keys (Django 3.2 defaults would
+# otherwise emit W042 warnings). Set explicitly to avoid unwanted PK migrations.
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
