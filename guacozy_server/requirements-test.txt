@@ -1,0 +1,6 @@
+-r requirements-base.txt
+
+# Test tooling. Pinned to versions that still support Python 3.7 / Django 2.2
+# (the current stack) so the suite stays green through the modernization phases.
+pytest==7.4.4
+pytest-django==4.5.2

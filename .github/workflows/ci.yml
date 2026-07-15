@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - "claude/**"
+  pull_request:
+
+jobs:
+  backend-tests:
+    name: Backend tests (Python 3.7 / Django 2.2)
+    runs-on: ubuntu-22.04
+    env:
+      # Real secrets so settings.py starts (see conftest.py for the same defaults).
+      DEBUG: "True"
+      DJANGO_SECRET_KEY: "ci-secret-key-not-for-production"
+      FIELD_ENCRYPTION_KEY: "qjq4ObsXMqiqQyfKgD-jjEGm4ep8RaHKGRg4ohGCi1A="
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.7"
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libpq-dev
+
+      - name: Install Python dependencies
+        working-directory: guacozy_server
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install -r requirements-test.txt
+
+      - name: Check migrations are up to date
+        working-directory: guacozy_server
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Run tests
+        working-directory: guacozy_server
+        run: pytest -v
+
+  frontend-build:
+    name: Frontend build (Node 14)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "14"
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build
+        working-directory: frontend
+        # CI=false so that lint warnings from the (to-be-modernized) codebase do
+        # not fail the build; real compile errors still fail it.
+        env:
+          CI: "false"
+        run: npm run build
+
+  security-audit:
+    name: Dependency vulnerability audit
+    runs-on: ubuntu-22.04
+    # Advisory only for now: the current stack is EOL and expected to report
+    # findings that the modernization phases will resolve.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: pip-audit (backend requirements)
+        run: |
+          python -m pip install --upgrade pip pip-audit
+          pip-audit -r guacozy_server/requirements-base.txt || true
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: npm audit (frontend)
+        working-directory: frontend
+        run: npm audit || true
