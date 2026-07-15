@@ -7,7 +7,13 @@ one connection that should appear in the tree.
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
 
-from backend.models import ConnectionRdp, Folder, FolderPermission
+from backend.models import (
+    AppSettings,
+    ConnectionRdp,
+    Folder,
+    FolderPermission,
+    GuacdServer,
+)
 
 User = get_user_model()
 
@@ -34,5 +40,17 @@ class Command(BaseCommand):
             name=E2E_CONNECTION,
             defaults={"host": "10.0.0.10", "parent": folder},
         )
+
+        # A default guacd server is required: creating a ticket writes a
+        # TicketLog whose guacdserver_port is NOT NULL. Production always runs
+        # `initguacd`; mirror that here so the ticket flow works.
+        guacd, _ = GuacdServer.objects.get_or_create(
+            name="e2e guacd",
+            defaults={"hostname": "localhost", "port": 4822},
+        )
+        app_settings = AppSettings.load()
+        if app_settings.default_guacd_server is None:
+            app_settings.default_guacd_server = guacd
+            app_settings.save()
 
         self.stdout.write(self.style.SUCCESS("E2E seed complete"))

@@ -23,14 +23,18 @@ test('unauthenticated visit redirects to the Django login page', async ({ page }
 test('login renders the app shell with the seeded folder and connection', async ({ page }) => {
   await login(page);
 
+  // Scope to the tree so the tickets sidebar (which also lists connection
+  // names once a ticket exists) does not create ambiguous matches.
+  const tree = page.locator('#connectionTree');
+
   // The seeded folder is a root node and should render once the connections
   // tree API responds (this proves auth + /api/connections/tree worked).
-  await expect(page.getByText('E2E Folder')).toBeVisible();
+  await expect(tree.getByText('E2E Folder')).toBeVisible();
 
   // The folder only holds a connection (no subfolders), so it starts collapsed.
   // Use the "Expand all" toolbar button to reveal the connection.
   await page.locator('[title="Expand all"]').click();
-  await expect(page.getByText('E2E Test RDP')).toBeVisible();
+  await expect(tree.getByText('E2E Test RDP')).toBeVisible();
 });
 
 test('logout returns the user to the login page', async ({ page }) => {
