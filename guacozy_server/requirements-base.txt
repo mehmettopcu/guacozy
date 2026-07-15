@@ -6,6 +6,9 @@
 # django-ipware pinned at 2.1.0 on purpose (ticketlog.py uses its 2.x
 # get_client_ip signature). django-semanticui-forms is an old, unmaintained
 # dependency used only for template form rendering and is verified manually.
+# django-polymorphic 3.1 still imports pkg_resources at import time, which
+# setuptools removes in 81+. Pin setuptools so the app keeps importing.
+setuptools<81
 asgiref==3.7.2
 channels==4.1.0
 daphne==4.1.2

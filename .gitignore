@@ -113,3 +113,11 @@ guacozy_server/tmp/
 guacozy_server/guacozy_server/ldap_config.py
 
 local/
+
+# E2E (Playwright)
+/e2e/node_modules
+/e2e/test-results
+/e2e/playwright-report
+/e2e/blob-report
+/e2e/playwright/.cache
+guacozy_server/e2e_db.sqlite3
