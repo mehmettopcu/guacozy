@@ -1,33 +1,29 @@
 # Backend dependencies.
 #
-# Phase 1 modernization, hop 1: Django 2.2 -> 3.2 LTS while staying on
-# Python 3.7 (Django 3.2 still supports 3.6-3.10). A later hop moves to
-# Django 4.2 LTS + Python 3.11 + Channels 4.
+# Phase 1 modernization, hop 2: Django 3.2 -> 4.2 LTS on Python 3.11,
+# channels 3 -> 4 (daphne is a separate package in channels 4).
 #
-# Pins kept deliberately at their current version (compatible with Django 3.2):
-#   django-ipware 2.1.0        -> ticketlog.py relies on the 2.x get_client_ip
-#                                 signature (request_header_order=); 3.x/4.x break it
-#   django-semanticui-forms    -> template form rendering
-#   django-admin-list-filter-dropdown, django-environ, pyguacamole,
-#   python-memcached           -> framework-agnostic / already compatible
-asgiref==3.5.2
-channels==3.0.5
-daphne==3.0.2
-Django==3.2.25
+# django-ipware pinned at 2.1.0 on purpose (ticketlog.py uses its 2.x
+# get_client_ip signature). django-semanticui-forms is an old, unmaintained
+# dependency used only for template form rendering and is verified manually.
+asgiref==3.7.2
+channels==4.1.0
+daphne==4.1.2
+Django==4.2.16
 django-admin-list-filter-dropdown==1.0.3
 django-encrypted-model-fields==0.6.5
 django-environ==0.4.5
-django-grappelli==3.0.3
+django-grappelli==3.0.8
 django-ipware==2.1.0
-django-model-utils==4.1.1
-django-mptt==0.13.4
-django-mptt-admin==2.3.0
+django-model-utils==4.3.1
+django-mptt==0.15.0
+django-mptt-admin==2.5.1
 django-polymorphic==3.1.0
 django-semanticui-forms==1.6.5
-djangorestframework==3.13.1
-psycopg2==2.9.5
+djangorestframework==3.14.0
+psycopg2==2.9.9
 pyguacamole==0.9
 python-memcached==1.59
-pytz==2021.3
-rules==3.3
-sqlparse==0.4.4
+pytz==2023.3
+rules==3.4
+sqlparse==0.5.0

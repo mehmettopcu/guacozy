@@ -10,7 +10,7 @@ on:
 
 jobs:
   backend-tests:
-    name: Backend tests (Python 3.7 / Django 2.2)
+    name: Backend tests (Python 3.11 / Django 4.2)
     runs-on: ubuntu-22.04
     env:
       # Real secrets so settings.py starts (see conftest.py for the same defaults).
@@ -23,7 +23,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.7"
+          python-version: "3.11"
 
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y libpq-dev
