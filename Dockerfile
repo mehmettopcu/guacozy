@@ -1,5 +1,7 @@
 ARG BUILDFRONTENDFROM=node:12.2.0-alpine
-ARG SERVERFROM=python:3.7-alpine
+# Debian slim (not alpine): modern cryptography ships manylinux wheels, so no
+# Rust toolchain is needed to build it. Pinned to bookworm for stable apt names.
+ARG SERVERFROM=python:3.11-slim-bookworm
 
 ####################
 # BUILDER FRONTEND #
@@ -28,15 +30,15 @@ WORKDIR /usr/src/app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# install psycopg2 dependencies
-RUN apk update && apk add \
-    build-base \
+# install build dependencies for psycopg2 and python-ldap
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     ca-certificates \
-    musl-dev \
-    postgresql-dev \
-    python3-dev \
+    libpq-dev \
+    libldap2-dev \
+    libsasl2-dev \
     libffi-dev \
-    openldap-dev
+    && rm -rf /var/lib/apt/lists/*
 
 COPY guacozy_server/requirements*.txt ./
 RUN pip install --upgrade pip && \
@@ -50,15 +52,18 @@ FROM ${SERVERFROM}
 
 COPY --from=builder-wheels /usr/src/app/wheels /wheels
 
-# install dependencies
-RUN apk update && apk add --no-cache \
+# install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
       bash \
-      libpq \
+      libpq5 \
+      libldap-2.5-0 \
+      libsasl2-2 \
       ca-certificates \
       openssl \
       memcached \
       nginx \
-	  supervisor
+      supervisor \
+    && rm -rf /var/lib/apt/lists/*
 
 # Inject built wheels and install them
 COPY --from=builder-wheels /usr/src/app/wheels /wheels
@@ -77,6 +82,9 @@ COPY docker /tmp/docker
 # Distribute configuration files and prepare dirs for pidfiles
 RUN mkdir -p /run/nginx && \
     mkdir -p /run/daphne && \
+    # Debian's nginx ships a default site listening on :80 that would clash
+    # with our conf.d/default.conf; remove it.
+    rm -f /etc/nginx/sites-enabled/default && \
     cd /tmp/docker && \
     mv entrypoint.sh /entrypoint.sh && \
     chmod +x /entrypoint.sh && \

@@ -1,19 +1,19 @@
-FROM python:3.7-alpine
+FROM python:3.11-slim-bookworm
 WORKDIR /app
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# install psycopg2 dependencies
-RUN apk update && apk add \
-    build-base \
+# install build dependencies for psycopg2 and python-ldap
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     ca-certificates \
-    musl-dev \
-    postgresql-dev \
-    python3-dev \
+    libpq-dev \
+    libldap2-dev \
+    libsasl2-dev \
     libffi-dev \
-    openldap-dev
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements*.txt /app/
 

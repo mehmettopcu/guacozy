@@ -96,3 +96,14 @@ jobs:
       - name: npm audit (frontend)
         working-directory: frontend
         run: npm audit || true
+
+  docker-build:
+    name: Production image build
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build production image
+        # Verifies the multi-stage image assembles end to end (frontend build,
+        # Python wheels including cryptography/psycopg2/python-ldap, final image).
+        run: docker build -t guacozy-server:ci .
