@@ -1,4 +1,4 @@
-ARG BUILDFRONTENDFROM=node:12.2.0-alpine
+ARG BUILDFRONTENDFROM=node:20-alpine
 # Debian slim (not alpine): modern cryptography ships manylinux wheels, so no
 # Rust toolchain is needed to build it. Pinned to bookworm for stable apt names.
 ARG SERVERFROM=python:3.11-slim-bookworm

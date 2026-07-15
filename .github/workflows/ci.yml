@@ -47,7 +47,7 @@ jobs:
         run: pytest -v
 
   frontend-build:
-    name: Frontend build (Node 14)
+    name: Frontend build (Node 20)
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -55,7 +55,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: "14"
+          node-version: "20"
 
       - name: Install dependencies
         working-directory: frontend

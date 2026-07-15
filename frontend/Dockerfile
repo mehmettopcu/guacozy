@@ -1,4 +1,4 @@
-FROM node:12.2.0-alpine
+FROM node:20-alpine
 
 ADD package.json /frontend/
 ADD package-lock.json /frontend/
