@@ -10,7 +10,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-SECRET_KEY = env('DJANGO_SECRET_KEY', default='abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz')
+# Insecure development defaults. These are safe to use only in DEBUG mode;
+# in production the secrets below MUST be provided via the environment, and
+# the check further down (see "Fail fast on insecure defaults") enforces it.
+INSECURE_DEFAULT_SECRET_KEY = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz'
+INSECURE_DEFAULT_FIELD_ENCRYPTION_KEY = 'Fg5rOYvc_hUjsWoyOwqW_bm4tuZn9UDbRpN-ajrvvoM='
+
+SECRET_KEY = env('DJANGO_SECRET_KEY', default=INSECURE_DEFAULT_SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=False)
@@ -204,7 +210,29 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Field encryption key
-FIELD_ENCRYPTION_KEY = env.str('FIELD_ENCRYPTION_KEY', default='Fg5rOYvc_hUjsWoyOwqW_bm4tuZn9UDbRpN-ajrvvoM=')
+FIELD_ENCRYPTION_KEY = env.str('FIELD_ENCRYPTION_KEY', default=INSECURE_DEFAULT_FIELD_ENCRYPTION_KEY)
+
+# Fail fast on insecure defaults
+#
+# When DEBUG is off we assume a production deployment. Running with the shared,
+# publicly known development defaults would let anyone forge sessions
+# (DJANGO_SECRET_KEY) or decrypt stored connection passwords
+# (FIELD_ENCRYPTION_KEY), so refuse to start until real secrets are provided.
+# In DEBUG mode the insecure defaults are still allowed for convenience.
+if not DEBUG:
+    insecure_settings = []
+    if SECRET_KEY == INSECURE_DEFAULT_SECRET_KEY:
+        insecure_settings.append('DJANGO_SECRET_KEY')
+    if FIELD_ENCRYPTION_KEY == INSECURE_DEFAULT_FIELD_ENCRYPTION_KEY:
+        insecure_settings.append('FIELD_ENCRYPTION_KEY')
+
+    if insecure_settings:
+        raise ImproperlyConfigured(
+            "Refusing to start with insecure default secrets in production "
+            "(DEBUG=False): {}. Provide unique values via the environment. "
+            "Generate a field encryption key with "
+            "`./manage.py generate_encryption_key`.".format(
+                ', '.join(insecure_settings)))
 
 #
 # LDAP authentication (optional)

@@ -90,10 +90,17 @@ volumes:
 
 
 `DJANGO_SECRET_KEY` : random string used for hashing (50 chars)  
+> If you don't specify DJANGO_SECRET_KEY, a random one is generated on every
+> container start. That is safe, but it invalidates existing login sessions on
+> each restart, so set it explicitly for a stable deployment.
+> Running the Django server directly (without the container entrypoint) with
+> `DEBUG=False` and no secret key set will refuse to start.
 
 `FIELD_ENCRYPTION_KEY` - encryption key which will be used to encrypt passwords in database  
-> If you don't specify FIELD_ENCRYPTION_KEY, default will be used (bad idea).   
-> If you use with one key and later change - your stored passwords will not work
+> If you don't specify FIELD_ENCRYPTION_KEY, a new random key is generated on
+> every container start. Passwords stored under a previous key then become
+> **unreadable**, so you MUST set this explicitly for any persistent deployment.
+> With `DEBUG=False` the server refuses to start on the old shared default key.
 >
 > After you start, generate one with  
 >`./manage.py generate_encryption_key` 
